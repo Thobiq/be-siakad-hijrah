@@ -1,0 +1,43 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PenilaianController;
+
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::get('/penilaian/master-data', [PenilaianController::class, 'getMasterData']);
+
+    Route::post('/penilaian', [PenilaianController::class, 'store']);
+
+    // API untuk mengambil daftar penilaian di halaman depan KB
+    Route::get('/penilaian', [PenilaianController::class, 'index']);
+
+    Route::post('/penilaian', [PenilaianController::class, 'store']);
+    // Tambahkan baris ini untuk fungsi Detail
+    Route::get('/penilaian/{id}', [PenilaianController::class, 'show']);
+
+    Route::get('/penilaian/{id}', [PenilaianController::class, 'show']);
+    Route::get('/penilaian/matriks/{id}/{elemenId}', [PenilaianController::class, 'getMatriksData']);
+
+    Route::get('/penilaian/matriks/{id}/{elemenId}', [PenilaianController::class, 'getMatriksData']);
+    Route::post('/penilaian/matriks/{id}/{elemenId}', [PenilaianController::class, 'saveMatriksData']);
+
+    Route::delete('/penilaian/{id}', [PenilaianController::class, 'destroy']);
+
+    Route::put('/penilaian/{id}/status', [PenilaianController::class, 'updateStatus']);
+
+    Route::put('/penilaian/{id}/status-draft', [PenilaianController::class, 'updateToDraft']);
+});
