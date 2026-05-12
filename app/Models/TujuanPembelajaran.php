@@ -12,4 +12,9 @@ class TujuanPembelajaran extends Model
     {
         return $this->hasMany(AtpIndikator::class);
     }
+
+    protected $fillable = [
+        'capaian_pembelajaran_id', 
+        'deskripsi'
+    ];
 }

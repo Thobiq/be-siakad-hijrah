@@ -251,4 +251,32 @@ class PenilaianController extends Controller
             'message' => 'Status berhasil dikembalikan ke Draft!'
         ]);
     }
+
+    public function getDashboardStats()
+    {
+        // Menghitung jumlah penilaian yang statusnya 'Selesai' berdasarkan tingkat siswanya
+        $kb = \App\Models\Penilaian::where('status', 'Selesai')
+            ->whereHas('siswa', function ($query) { 
+                $query->where('tingkat', 'KB'); 
+            })->count();
+
+        $tka = \App\Models\Penilaian::where('status', 'Selesai')
+            ->whereHas('siswa', function ($query) { 
+                $query->where('tingkat', 'TK A'); // Sesuaikan string 'TKA' dengan yang ada di databasemu
+            })->count();
+
+        $tkb = \App\Models\Penilaian::where('status', 'Selesai')
+            ->whereHas('siswa', function ($query) { 
+                $query->where('tingkat', 'TK B'); // Sesuaikan string 'TKB' dengan yang ada di databasemu
+            })->count();
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'kb' => $kb,
+                'tka' => $tka,
+                'tkb' => $tkb
+            ]
+        ]);
+    }
 }

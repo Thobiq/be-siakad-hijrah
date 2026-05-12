@@ -12,4 +12,9 @@ class CapaianPembelajaran extends Model
     {
         return $this->hasMany(TujuanPembelajaran::class);
     }
+
+    protected $fillable = [
+        'elemen_capaian_id', 
+        'deskripsi'
+    ];
 }

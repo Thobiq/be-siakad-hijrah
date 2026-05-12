@@ -114,8 +114,26 @@ class DatabaseSeeder extends Seeder
                                 'Murid dapat menggosok gigi mandiri',
                                 'Murid dapat mandi sendiri',
                                 'Murid dapat menjaga kebersihan kuku',
+                                'Murid dapat menjaga kebersihan THT',
+                                'Murid dapat menjaga kebersihan rambut',
+                                'Murid dapat menjaga kesehatan mata',
+                                'Murid dapat menjaga pola makan',
                             ]
-                        ]
+                        ],
+                        [
+                            'deskripsi' => 'TP3. Murid memahami dan bersedia menjaga kesehatan diri sebagai bentuk syukur kepada Tuhan YME',
+                            'atp' => [
+                                'Murid dapat mengetahui perbuatan benar dan salah tentang. menjaga kesehatan diri',
+                                'Murid dapat menunjukkan perbuatan benar dan salah ttg. menjaga kesehatan diri',
+                                'Murid dapat menggosok gigi mandiri',
+                                'Murid dapat mandi sendiri',
+                                'Murid dapat menjaga kebersihan kuku',
+                                'Murid dapat menjaga kebersihan THT',
+                                'Murid dapat menjaga kebersihan rambut',
+                                'Murid dapat menjaga kesehatan mata',
+                                'Murid dapat menjaga pola makan',
+                            ]
+                        ],
                     ]
                 ]
             ],
