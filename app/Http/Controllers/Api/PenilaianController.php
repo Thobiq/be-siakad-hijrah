@@ -154,43 +154,46 @@ class PenilaianController extends Controller
             $details = [];
         }
 
-        $atpIdsFromFrontend = collect($details)->pluck('atp_id')->filter()->toArray();
-
-        // 1. CARI TAHU ATP MILIK ELEMEN INI (Menggunakan metode Top-to-Bottom yang aman)
+        // 1. CARI TAHU TP ID & ATP ID MILIK ELEMEN INI
+        // (Pastikan atpIndikators juga di-load agar kita bisa mengambil ID data lama)
         $elemen = \App\Models\ElemenCapaian::with('capaianPembelajarans.tujuanPembelajarans.atpIndikators')->find($elemenId);
         
+        $tpIdsInThisElemen = [];
         $atpIdsInThisElemen = [];
+        
         if ($elemen) {
             foreach ($elemen->capaianPembelajarans as $cp) {
                 foreach ($cp->tujuanPembelajarans as $tp) {
+                    $tpIdsInThisElemen[] = $tp->id; // Ambil TP ID untuk data baru
+                    
                     foreach ($tp->atpIndikators as $atp) {
-                        $atpIdsInThisElemen[] = $atp->id;
+                        $atpIdsInThisElemen[] = $atp->id; // Ambil ATP ID untuk data lama
                     }
                 }
             }
         }
 
-        // 2. FITUR HAPUS: Hapus data yang tidak ada di layar, TAPI hanya untuk elemen ini
-        \App\Models\PenilaianDetail::where('penilaian_id', $id)
-            ->whereIn('atp_indikator_id', $atpIdsInThisElemen)
-            ->whereNotIn('atp_indikator_id', $atpIdsFromFrontend)
-            ->delete();
-
-        // 3. FITUR UPDATE & CREATE: Simpan nilai yang dikirim
-        foreach ($details as $item) {
-            \App\Models\PenilaianDetail::updateOrCreate(
-                [
-                    'penilaian_id' => $id,
-                    'atp_indikator_id' => $item['atp_id']
-                ],
-                [
-                    'pertemuan' => $item['pertemuan'], 
-                    'nilai_akhir' => $item['nilai_akhir']
-                ]
-            );
+        // 2. FITUR HAPUS (SYNC): Hapus data Lama dan Baru sekaligus!
+        if (count($tpIdsInThisElemen) > 0 || count($atpIdsInThisElemen) > 0) {
+            \App\Models\PenilaianDetail::where('penilaian_id', $id)
+                ->where(function($query) use ($tpIdsInThisElemen, $atpIdsInThisElemen) {
+                    $query->whereIn('tujuan_pembelajaran_id', $tpIdsInThisElemen)
+                          ->orWhereIn('atp_indikator_id', $atpIdsInThisElemen);
+                })
+                ->delete();
         }
 
-        \App\Models\Penilaian::where('id', $id)->update(['status' => 'Selesai']);
+        // 3. INSERT ULANG DATA BARU (Master & Custom)
+        foreach ($details as $item) {
+            \App\Models\PenilaianDetail::create([
+                'penilaian_id' => $id,
+                'tujuan_pembelajaran_id' => $item['tp_id'] ?? null,
+                'atp_indikator_id' => $item['atp_id'] ?? null,
+                'deskripsi_custom' => $item['deskripsi_custom'] ?? null,
+                'pertemuan' => $item['pertemuan'], 
+                'nilai_akhir' => $item['nilai_akhir']
+            ]);
+        }
 
         return response()->json(['status' => true, 'message' => 'Penilaian berhasil diperbarui!']);
     }
