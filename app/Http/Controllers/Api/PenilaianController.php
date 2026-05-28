@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ElemenCapaian;
+use Illuminate\Support\Facades\DB;
+use App\Models\Penilaian;
 use App\Models\Siswa;
 
 class PenilaianController extends Controller
@@ -196,6 +198,61 @@ class PenilaianController extends Controller
         }
 
         return response()->json(['status' => true, 'message' => 'Penilaian berhasil diperbarui!']);
+    }
+
+    public function update(Request $request, $id)
+    {
+        // 1. Validasi input dari frontend
+        $request->validate([
+            'nama'         => 'required|string|max:255',
+            'no_induk'     => 'required|string|max:100',
+            'tahun_ajaran' => 'required|string',
+            'tingkat'      => 'required|string',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // 2. Cari data penilaian berdasarkan ID
+            $penilaian = Penilaian::with('siswa')->find($id);
+
+            if (!$penilaian) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data penilaian tidak ditemukan.'
+                ], 404);
+            }
+
+            // 3. Update data Siswa (karena nama dan no_induk menempel pada siswa)
+            if ($penilaian->siswa) {
+                $penilaian->siswa->update([
+                    'nama'        => $request->nama,
+                    'nomor_induk' => $request->no_induk, // Sesuaikan dengan nama kolom di database-mu
+                ]);
+            }
+
+            // 4. Update data Penilaian-nya sendiri
+            $penilaian->update([
+                'tahun_ajaran' => $request->tahun_ajaran,
+                'tingkat'      => $request->tingkat,
+            ]);
+
+            DB::commit();
+
+            // 5. Kembalikan response sukses ke SvelteKit
+            return response()->json([
+                'status'  => true,
+                'message' => 'Data berhasil diperbarui!',
+                'data'    => $penilaian
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return response()->json([
+                'status'  => false,
+                'message' => 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function destroy($id)

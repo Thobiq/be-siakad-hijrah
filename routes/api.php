@@ -41,6 +41,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::put('/penilaian/{id}/status-draft', [PenilaianController::class, 'updateToDraft']);
 
+    Route::put('/penilaian/{id}', [PenilaianController::class, 'update']);
+
     // --- ROUTE UNTUK ELEMEN PENILAIAN (INDUK) ---
     Route::apiResource('elemen-capaian', \App\Http\Controllers\Api\ElemenCapaianController::class);
 
