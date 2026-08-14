@@ -4,12 +4,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PenilaianController;
+use App\Http\Controllers\Api\GuruController;
+use App\Http\Controllers\Api\KelasController;
+use App\Http\Controllers\SiswaController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
-
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
@@ -17,6 +21,21 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::get('/siswa', [SiswaController::class, 'index']);
+    Route::post('/siswa', [SiswaController::class, 'store']);
+    Route::post('/siswa/bulk-action', [SiswaController::class, 'bulkAction']);
+    Route::put('/siswa/{id}', [SiswaController::class, 'update']);
+    Route::delete('/siswa/{id}', [SiswaController::class, 'destroy']);
+
+    // Api Generate
+    Route::post('/ai/generate-narasi', [\App\Http\Controllers\AiController::class, 'generateNarasi']);
+
+    // API Guru
+    Route::apiResource('guru', GuruController::class);
+
+    // API Kelas
+    Route::apiResource('kelas', KelasController::class);
 
     Route::get('/penilaian/master-data', [PenilaianController::class, 'getMasterData']);
 
@@ -26,22 +45,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/penilaian', [PenilaianController::class, 'index']);
 
     Route::post('/penilaian', [PenilaianController::class, 'store']);
-    // Tambahkan baris ini untuk fungsi Detail
     Route::get('/penilaian/{id}', [PenilaianController::class, 'show']);
-
-    Route::get('/penilaian/{id}', [PenilaianController::class, 'show']);
-    Route::get('/penilaian/matriks/{id}/{elemenId}', [PenilaianController::class, 'getMatriksData']);
-
     Route::get('/penilaian/matriks/{id}/{elemenId}', [PenilaianController::class, 'getMatriksData']);
     Route::post('/penilaian/matriks/{id}/{elemenId}', [PenilaianController::class, 'saveMatriksData']);
-
     Route::delete('/penilaian/{id}', [PenilaianController::class, 'destroy']);
-
     Route::put('/penilaian/{id}/status', [PenilaianController::class, 'updateStatus']);
-
     Route::put('/penilaian/{id}/status-draft', [PenilaianController::class, 'updateToDraft']);
-
     Route::put('/penilaian/{id}', [PenilaianController::class, 'update']);
+
+    // --- ROUTE RAPOR ---
+    Route::post('/rapor', [\App\Http\Controllers\Api\RaporController::class, 'store']);
+    Route::delete('/rapor/{id}', [\App\Http\Controllers\Api\RaporController::class, 'destroy']);
+    Route::get('/rapor/{id}/pdf', [\App\Http\Controllers\Api\RaporController::class, 'downloadPdf']);
 
     // --- ROUTE UNTUK ELEMEN PENILAIAN (INDUK) ---
     Route::apiResource('elemen-capaian', \App\Http\Controllers\Api\ElemenCapaianController::class);

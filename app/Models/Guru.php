@@ -6,5 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Guru extends Model
 {
-    //
+    protected $fillable = ['user_id', 'nama', 'nomor_induk'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

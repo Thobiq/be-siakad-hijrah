@@ -17,8 +17,8 @@ class PenilaianController extends Controller
         // Tangkap parameter 'tingkat' dari URL SvelteKit (contoh: ?tingkat=KB)
         $tingkat = $request->query('tingkat');
 
-        // Tarik data penilaian dan siswa
-        $query = \App\Models\Penilaian::with('siswa')->orderBy('created_at', 'desc');
+        // Tarik data penilaian dan siswa beserta kelasnya dan rapor
+        $query = \App\Models\Penilaian::with(['siswa.kelas', 'siswa.rapor'])->orderBy('created_at', 'desc');
 
         // Jika ada parameter tingkat, filter datanya!
         if ($tingkat) {
@@ -32,9 +32,12 @@ class PenilaianController extends Controller
         $formattedData = $penilaians->map(function ($p) {
             return [
                 'id' => $p->id,
+                'siswa_id' => $p->siswa_id,
                 'nama' => $p->siswa->nama ?? 'Siswa Tidak Ditemukan',
                 'noInduk' => $p->siswa->nomor_induk ?? '-',
-                'status' => $p->status
+                'kelas' => $p->siswa->kelas->nama_kelas ?? '-',
+                'status' => $p->status,
+                'rapor_id' => $p->siswa->rapor->id ?? null // Cek apakah ada rapor
             ];
         });
 
@@ -96,14 +99,14 @@ class PenilaianController extends Controller
 
     public function show($id)
     {
-        // 1. Cari data penilaian berdasarkan ID beserta data siswanya
-        $penilaian = \App\Models\Penilaian::with('siswa')->find($id);
+        // Ambil penilaian beserta siswa, kelas, dan rapor
+        $penilaian = \App\Models\Penilaian::with(['siswa.kelas', 'siswa.rapor'])->find($id);
 
         if (!$penilaian) {
             return response()->json(['status' => false, 'message' => 'Data tidak ditemukan'], 404);
         }
 
-        // 2. Ambil semua daftar Elemen Penilaian untuk dijadikan tombol
+        // Ambil semua daftar Elemen Penilaian untuk dijadikan tombol
         $elemen = \App\Models\ElemenCapaian::all();
 
         return response()->json([
