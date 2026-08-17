@@ -84,7 +84,7 @@
         <p>Anda menerima email ini karena kami menerima permintaan untuk mereset kata sandi (password) akun Anda.</p>
         
         <div class="btn-container">
-            <a href="{{ url('http://localhost:5173/reset-password?token=' . $token . '&email=' . urlencode($email)) }}" class="btn">Reset Password</a>
+            <a href="{{ env('FRONTEND_URL', 'http://localhost:5173') }}/reset-password?token={{ $token }}&email={{ urlencode($email) }}" class="btn">Reset Password</a>
         </div>
         
         <p>Tautan reset password ini akan <strong>kadaluarsa dalam 60 menit</strong>.</p>
@@ -95,7 +95,7 @@
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
         
         <p style="font-size: 12px; color: #9ca3af;">Jika Anda kesulitan menekan tombol "Reset Password", salin dan tempel URL berikut ke peramban web Anda:</p>
-        <p class="link-text">{{ url('http://localhost:5173/reset-password?token=' . $token . '&email=' . urlencode($email)) }}</p>
+        <p class="link-text">{{ env('FRONTEND_URL', 'http://localhost:5173') }}/reset-password?token={{ $token }}&email={{ urlencode($email) }}</p>
     </div>
 
     <div class="footer">
