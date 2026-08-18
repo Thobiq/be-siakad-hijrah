@@ -75,6 +75,10 @@ class RaporController extends Controller
 
     public function downloadPdf($id)
     {
+        // Tingkatkan memory limit dan execution time untuk DomPDF jika terdapat banyak foto beresolusi tinggi
+        ini_set('memory_limit', '1024M');
+        ini_set('max_execution_time', '300');
+
         $rapor = \App\Models\Rapor::with('siswa.kelas')->find($id);
 
         if (!$rapor) {
@@ -83,15 +87,28 @@ class RaporController extends Controller
 
         $siswa = $rapor->siswa;
         
+        $profil = \App\Models\ProfilSekolah::first();
+        if (!$profil) {
+            $profil = (object)[
+                'nama_sekolah' => 'Al-Hijrah',
+                'alamat' => 'Jl. Jawa II No. 22 Sumbersari-Jember',
+                'nama_kepala_sekolah' => 'INGE MARRINDA P, S.Pd',
+                'logo_path' => 'images/logo-alhijrah.png'
+            ];
+        }
+
         // Pass data to view
         $data = [
             'rapor' => $rapor,
             'siswa' => $siswa,
-            'guruKelas' => 'Annabella Widyadhana, S.Pd', // Bisa disesuaikan nanti jika ada relasi ke user
+            'profil' => $profil,
         ];
 
+        // Pilih view berdasarkan tingkat
+        $viewTemplate = (strtoupper($siswa->tingkat ?? '') === 'KB') ? 'rapor.pdf-kb' : 'rapor.pdf-tk';
+
         // Generate PDF
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('rapor.pdf-tk', $data);
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView($viewTemplate, $data);
         
         // Set paper to A4 Portrait
         $pdf->setPaper('a4', 'portrait');

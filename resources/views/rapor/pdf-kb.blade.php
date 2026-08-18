@@ -146,7 +146,7 @@
             @endif
         </div>
         <div class="header-text">
-            <h3>TK {{ strtoupper($profil->nama_sekolah ?? 'AL-HIJRAH') }}</h3>
+            <h3>KB {{ strtoupper($profil->nama_sekolah ?? 'AL-HIJRAH') }}</h3>
             <p>{{ $profil->alamat ?? 'Jl. Jawa II No. 22 Sumbersari-Jember' }}</p>
             <p>Laporan Perkembangan Anak Didik</p>
         </div>
@@ -155,46 +155,77 @@
 
     <main>
         
-        <!-- HALAMAN 1: IDENTITAS ANAK DIDIK -->
-        <table class="table-bordered" style="width: 100%; border: 2px solid #000; margin-bottom: 30px;">
+        <!-- HALAMAN 1: PEMBIASAAN AGAMA -->
+        <div class="teks-arab">بسم الله الرحمن الرحيم</div>
+        <div class="section-title">PEMBIASAAN AGAMA</div>
+        
+        <table class="table-bordered">
             <tr>
-                <th colspan="4" style="background-color: #cfd8dc; color: #000; padding: 10px; font-size: 12pt; text-align: center; border-bottom: 2px solid #000;">
-                    Laporan Perkembangan Anak Didik
+                <th style="width: 5%; text-align: center;">No.</th>
+                <th style="width: 50%; text-align: center;">Materi</th>
+                <th style="width: 15%; text-align: center; vertical-align: middle;">
+                    <div style="width: 20px; height: 20px; border-radius: 50%; background-color: red; border: 1px solid black; display: inline-block; margin: 0 auto; line-height: 20px; font-size: 14px;">&#9785;</div>
+                </th>
+                <th style="width: 15%; text-align: center; vertical-align: middle;">
+                    <div style="width: 20px; height: 20px; border-radius: 50%; background-color: yellow; border: 1px solid black; display: inline-block; margin: 0 auto; line-height: 20px; font-size: 14px;">&#128528;</div>
+                </th>
+                <th style="width: 15%; text-align: center; vertical-align: middle;">
+                    <div style="width: 20px; height: 20px; border-radius: 50%; background-color: #0ea5e9; border: 1px solid black; display: inline-block; margin: 0 auto; line-height: 20px; font-size: 14px;">&#9786;</div>
                 </th>
             </tr>
+            <!-- Contoh list materi sesuai PDF aslinya -->
+            @php
+                $materiAgama = [
+                    'Kalimat Basmalah', 'Kalimat istighfar', 'Kalimat salam', 
+                    'Do’a sebelum makan dan sesudah makan', 'Do’a sebelum tidur',
+                    'Do’a sebelum pulang', 'Do’a naik kendaraan', 'Surat Al-Fatihah',
+                    'Surat Al-Ikhlas', 'Surat An-Naas', 'Mengenal huruf hijaiyah alif sampai Ha’'
+                ];
+            @endphp
+            
+            @foreach($materiAgama as $index => $materi)
             <tr>
-                <td style="width: 20%; padding: 8px;">Nama sekolah</td>
-                <td style="width: 35%; padding: 8px;">TK {{ $profil->nama_sekolah ?? 'Al-Hijrah' }}</td>
-                <td style="width: 15%; padding: 8px;">Kelas</td>
-                <td style="width: 30%; padding: 8px;">{{ $siswa->tingkat}}</td>
+                <td class="text-center">{{ $index + 1 }}.</td>
+                <td style="padding-left: 10px;">{{ $materi }}</td>
+                <td class="text-center"></td> {{-- Isi dengan logika checkmark misal: $rapor->nilai_agama[$index] == 'Belum' ? '√' : '' --}}
+                <td class="text-center"></td>
+                <td class="text-center">√</td> <!-- Hardcoded untuk contoh layout -->
             </tr>
+            @endforeach
             <tr>
-                <td style="padding: 8px;">Nama siswa</td>
-                <td style="padding: 8px;">{{ $siswa->nama }}</td>
-                <td style="padding: 8px;">Fase</td>
-                <td style="padding: 8px;">Fondasi</td>
-            </tr>
-            <tr>
-                <td style="padding: 8px;">NIS</td>
-                <td style="padding: 8px;">{{ $siswa->nis ?? '-' }}</td>
-                <td style="padding: 8px;">Tinggi Badan</td>
-                <td style="padding: 8px;">{{ $rapor->tinggi_badan ?? '-' }} cm</td>
-            </tr>
-            <tr>
-                <td style="padding: 8px;">Semester / TA</td>
-                <td style="padding: 8px;">{{ $rapor->semester ?? '1' }} / {{ $rapor->tahun_ajaran ?? '2025/2026' }}</td>
-                <td style="padding: 8px;">Berat Badan</td>
-                <td style="padding: 8px;">{{ $rapor->berat_badan ?? '-' }} kg</td>
-            </tr>
-            <tr>
-                <td style="padding: 8px;">Guru Kelas</td>
-                <td style="padding: 8px;">{{ $guruKelas ?? 'Annabella Widyadhana, S.Pd' }}</td>
-                <td style="padding: 8px;">Lingkar Kepala</td>
-                <td style="padding: 8px;">{{ $rapor->lingkar_kepala ?? '-' }} cm</td>
+                <td colspan="2" style="text-align: center; font-weight: bold; padding: 20px 10px; vertical-align: middle;">
+                    Catatan<br>Bu Guru
+                </td>
+                <td colspan="3" style="text-align: justify; padding: 10px; vertical-align: top;">
+                    {!! nl2br(e($rapor->catatan_pembiasaan_agama ?? 'Belum ada catatan.')) !!}
+                </td>
             </tr>
         </table>
+
+        <div style="margin-top: 30px; margin-left: 10px; font-weight: bold; font-size: 12pt;">Keterangan :</div>
+        <table class="table-bordered" style="width: 60%; margin: 20px auto; border: 2px solid #000;">
+            <tr>
+                <th style="width: 33.33%; background-color: #fff;">Belum hafal</th>
+                <th style="width: 33.33%; background-color: #fff;">Kurang lancar</th>
+                <th style="width: 33.33%; background-color: #fff;">Lancar</th>
+            </tr>
+            <tr>
+                <td style="text-align: center; padding: 10px;">
+                    <div style="width: 30px; height: 30px; border-radius: 50%; background-color: red; border: 1px solid black; display: inline-block; line-height: 30px; font-size: 18px;">&#9785;</div>
+                </td>
+                <td style="text-align: center; padding: 10px;">
+                    <div style="width: 30px; height: 30px; border-radius: 50%; background-color: yellow; border: 1px solid black; display: inline-block; line-height: 30px; font-size: 18px;">&#128528;</div>
+                </td>
+                <td style="text-align: center; padding: 10px;">
+                    <div style="width: 30px; height: 30px; border-radius: 50%; background-color: #0ea5e9; border: 1px solid black; display: inline-block; line-height: 30px; font-size: 18px;">&#9786;</div>
+                </td>
+            </tr>
+        </table>
+
+        <div class="page-break"></div>
+
         <!-- HALAMAN 2: NARASI AGAMA -->
-        <!-- <div class="teks-arab">Ø¨Ø³Ù… Ø§Ù„Ù„Ù‡ Ø§Ù„Ø±Ø­Ù…Ù† Ø§Ù„Ø±Ø­ÙŠÙ…</div> -->
+        <div class="teks-arab">بسم الله الرحمن الرحيم</div>
         
         <div style="border: 2px solid #000; margin-bottom: 20px;">
             <div style="background-color: #0275d8; color: white; padding: 10px; font-size: 12pt; text-align: center; font-weight: bold; border-bottom: 2px solid #000; page-break-after: avoid;">
@@ -327,15 +358,29 @@
 
         <div class="page-break"></div>
 
-        <!-- HALAMAN 6: TANDA TANGAN -->
+        <!-- HALAMAN 6: FISIK & TANDA TANGAN -->
         <div class="judul-halaman">Bismillahirrahmannirrahim</div>
+        <div class="section-title text-center">Catatan Perkembangan Fisikku</div>
+        
+        <table class="table-bordered" style="margin-top: 20px;">
+            <tr>
+                <th style="width: 33.33%;">Berat Badan (BB)</th>
+                <th style="width: 33.33%;">Tinggi Badan (TB)</th>
+                <th style="width: 33.33%;">Lingkar Kepala (LK)</th>
+            </tr>
+            <tr>
+                <td class="text-center">{{ $rapor->berat_badan ?? '-' }} kg</td>
+                <td class="text-center">{{ $rapor->tinggi_badan ?? '-' }} cm</td>
+                <td class="text-center">{{ $rapor->lingkar_kepala ?? '-' }} cm</td>
+            </tr>
+        </table>
 
         <!-- Kolom Tanda Tangan Menggunakan Tabel -->
         <table class="ttd-table">
             <tr>
                 <td>
                     Mengetahui,<br>
-                    Kepala TK {{ strtoupper($profil->nama_sekolah ?? 'AL-HIJRAH') }}
+                    Kepala KB {{ strtoupper($profil->nama_sekolah ?? 'AL-HIJRAH') }}
                     <br><br><br><br>
                     <strong>{{ $profil->nama_kepala_sekolah ?? 'INGE MARRINDA P, S.Pd' }}</strong>
                 </td>

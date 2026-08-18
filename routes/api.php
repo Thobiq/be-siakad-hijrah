@@ -78,4 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/atp/{id}', [\App\Http\Controllers\Api\KurikulumController::class, 'destroyAtp']);
 
     Route::get('/dashboard/stats', [\App\Http\Controllers\Api\PenilaianController::class, 'getDashboardStats']);
+
+    // --- ROUTE PROFIL SEKOLAH ---
+    Route::get('/profil-sekolah', [\App\Http\Controllers\ProfilSekolahController::class, 'index']);
+    Route::post('/profil-sekolah', [\App\Http\Controllers\ProfilSekolahController::class, 'update']);
 });
