@@ -36,6 +36,7 @@ class PenilaianController extends Controller
                 'nama' => $p->siswa->nama ?? 'Siswa Tidak Ditemukan',
                 'noInduk' => $p->siswa->nomor_induk ?? '-',
                 'kelas' => $p->siswa->kelas->nama_kelas ?? '-',
+                'tahun_ajaran' => $p->siswa->kelas->tahun_ajaran ?? '-',
                 'status' => $p->status,
                 'rapor_id' => $p->siswa->rapor->id ?? null // Cek apakah ada rapor
             ];
