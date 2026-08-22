@@ -166,7 +166,7 @@
                 <td style="width: 20%; padding: 8px;">Nama sekolah</td>
                 <td style="width: 35%; padding: 8px;">TK {{ $profil->nama_sekolah ?? 'Al-Hijrah' }}</td>
                 <td style="width: 15%; padding: 8px;">Kelas</td>
-                <td style="width: 30%; padding: 8px;">{{ $siswa->tingkat}}</td>
+                <td style="width: 30%; padding: 8px;">{{ $kelas_nama }}</td>
             </tr>
             <tr>
                 <td style="padding: 8px;">Nama siswa</td>

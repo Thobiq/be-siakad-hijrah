@@ -33,6 +33,11 @@ class RaporController extends Controller
             }
 
             // Simpan atau Perbarui jika sudah ada
+            $siswa = \App\Models\Siswa::find($request->siswa_id);
+            if ($siswa) {
+                $data['kelas_id'] = $siswa->kelas_id;
+            }
+
             $rapor = \App\Models\Rapor::updateOrCreate(
                 [
                     'siswa_id' => $request->siswa_id,
@@ -79,7 +84,7 @@ class RaporController extends Controller
         ini_set('memory_limit', '1024M');
         ini_set('max_execution_time', '300');
 
-        $rapor = \App\Models\Rapor::with('siswa.kelas')->find($id);
+        $rapor = \App\Models\Rapor::with(['kelas', 'siswa.kelas'])->find($id);
 
         if (!$rapor) {
             return response()->json(['status' => false, 'message' => 'Data Rapor tidak ditemukan'], 404);
@@ -97,11 +102,14 @@ class RaporController extends Controller
             ];
         }
 
+        $kelas_nama = $rapor->kelas ? $rapor->kelas->nama_kelas : ($siswa->kelas->nama_kelas ?? $siswa->tingkat);
+
         // Pass data to view
         $data = [
             'rapor' => $rapor,
             'siswa' => $siswa,
             'profil' => $profil,
+            'kelas_nama' => $kelas_nama,
         ];
 
         // Pilih view berdasarkan tingkat

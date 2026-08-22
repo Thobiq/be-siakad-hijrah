@@ -30,7 +30,6 @@ class KelasController extends Controller
             'tingkat' => 'required|in:KB,TK A,TK B',
             'nama_kelas' => 'required|string|max:255',
             'tahun_ajaran' => 'required|string|max:20',
-            'semester' => 'required|in:Ganjil,Genap',
             'guru_id' => 'nullable|exists:gurus,id'
         ]);
 
@@ -55,7 +54,6 @@ class KelasController extends Controller
             'tingkat' => 'required|in:KB,TK A,TK B',
             'nama_kelas' => 'required|string|max:255',
             'tahun_ajaran' => 'required|string|max:20',
-            'semester' => 'required|in:Ganjil,Genap',
             'guru_id' => 'nullable|exists:gurus,id'
         ]);
 

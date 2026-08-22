@@ -18,27 +18,46 @@ class PenilaianController extends Controller
         $tingkat = $request->query('tingkat');
 
         // Tarik data penilaian dan siswa beserta kelasnya dan rapor
-        $query = \App\Models\Penilaian::with(['siswa.kelas', 'siswa.rapor'])->orderBy('created_at', 'desc');
+        $query = \App\Models\Penilaian::with(['kelas', 'siswa.kelas', 'siswa.rapors'])->orderBy('created_at', 'desc');
 
         // Jika ada parameter tingkat, filter datanya!
         if ($tingkat) {
-            $query->whereHas('siswa', function ($q) use ($tingkat) {
-                $q->where('tingkat', $tingkat);
+            $query->where(function ($q) use ($tingkat) {
+                // Jika punya relasi kelas (data baru), filter dari tingkat kelas historis
+                $q->whereHas('kelas', function ($q2) use ($tingkat) {
+                    $q2->where('tingkat', $tingkat);
+                })
+                // Jika belum punya relasi kelas (data lama), filter dari tingkat siswa saat ini
+                ->orWhere(function ($q2) use ($tingkat) {
+                    $q2->whereNull('kelas_id')
+                       ->whereHas('siswa', function ($q3) use ($tingkat) {
+                           $q3->where('tingkat', $tingkat);
+                       });
+                });
             });
         }
 
         $penilaians = $query->get();
 
         $formattedData = $penilaians->map(function ($p) {
+            $rapor_id = null;
+            if ($p->siswa && $p->siswa->rapors) {
+                $rapor = $p->siswa->rapors->where('semester', $p->semester)->where('tahun_ajaran', $p->tahun_ajaran)->first();
+                if ($rapor) {
+                    $rapor_id = $rapor->id;
+                }
+            }
+
             return [
                 'id' => $p->id,
                 'siswa_id' => $p->siswa_id,
                 'nama' => $p->siswa->nama ?? 'Siswa Tidak Ditemukan',
                 'noInduk' => $p->siswa->nomor_induk ?? '-',
-                'kelas' => $p->siswa->kelas->nama_kelas ?? '-',
-                'tahun_ajaran' => $p->siswa->kelas->tahun_ajaran ?? '-',
+                'kelas' => $p->kelas->nama_kelas ?? ($p->siswa->kelas->nama_kelas ?? '-'),
+                'tahun_ajaran' => $p->tahun_ajaran ?? '-',
+                'semester' => $p->semester ?? 'Ganjil',
                 'status' => $p->status,
-                'rapor_id' => $p->siswa->rapor->id ?? null // Cek apakah ada rapor
+                'rapor_id' => $rapor_id
             ];
         });
 
@@ -73,7 +92,8 @@ class PenilaianController extends Controller
             'nama' => 'required|string',
             'no_induk' => 'required|string',
             'tahun_ajaran' => 'required|string',
-            'tingkat' => 'required|string' // 👈 Tambahkan validasi tingkat
+            'tingkat' => 'required|string', // 👈 Tambahkan validasi tingkat
+            'semester' => 'required|string'
         ]);
 
         $siswa = \App\Models\Siswa::firstOrCreate(
@@ -90,8 +110,10 @@ class PenilaianController extends Controller
         $penilaian = \App\Models\Penilaian::create([
             'siswa_id' => $siswa->id,
             'guru_id' => $guru->id,
+            'kelas_id' => $siswa->kelas_id,
             'elemen_capaian_id' => 1, 
             'tahun_ajaran' => $request->tahun_ajaran,
+            'semester' => $request->semester,
             'status' => 'Draft'
         ]);
 
@@ -101,7 +123,7 @@ class PenilaianController extends Controller
     public function show($id)
     {
         // Ambil penilaian beserta siswa, kelas, dan rapor
-        $penilaian = \App\Models\Penilaian::with(['siswa.kelas', 'siswa.rapor'])->find($id);
+        $penilaian = \App\Models\Penilaian::with(['kelas', 'siswa.kelas', 'siswa.rapors'])->find($id);
 
         if (!$penilaian) {
             return response()->json(['status' => false, 'message' => 'Data tidak ditemukan'], 404);
@@ -212,6 +234,7 @@ class PenilaianController extends Controller
             'no_induk'     => 'required|string|max:100',
             'tahun_ajaran' => 'required|string',
             'tingkat'      => 'required|string',
+            'semester'     => 'required|string',
         ]);
 
         DB::beginTransaction();
@@ -237,6 +260,7 @@ class PenilaianController extends Controller
             // 4. Update data Penilaian-nya sendiri
             $penilaian->update([
                 'tahun_ajaran' => $request->tahun_ajaran,
+                'semester'     => $request->semester,
                 'tingkat'      => $request->tingkat,
             ]);
 

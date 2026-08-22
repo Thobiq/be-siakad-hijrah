@@ -13,7 +13,6 @@ class Kelas extends Model
         'tingkat',
         'nama_kelas',
         'tahun_ajaran',
-        'semester',
         'guru_id'
     ];
 

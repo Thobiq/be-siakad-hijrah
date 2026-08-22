@@ -31,8 +31,13 @@ class Siswa extends Model
         return $this->belongsTo(Kelas::class, 'kelas_id');
     }
 
-    public function rapor()
+    public function rapors()
     {
-        return $this->hasOne(Rapor::class);
+        return $this->hasMany(Rapor::class);
+    }
+
+    public function penilaians()
+    {
+        return $this->hasMany(Penilaian::class);
     }
 }
