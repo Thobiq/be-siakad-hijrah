@@ -151,11 +151,29 @@ class GuruController extends Controller
         DB::beginTransaction();
 
         try {
-            $userId = $guru->user_id;
-            $guru->delete();
+            $timestamp = time();
+
+            // Tambahkan penanda _deleted_ pada nomor induk agar dapat didaftarkan kembali jika perlu
+            if (!str_contains($guru->nomor_induk, '_deleted_')) {
+                $guru->nomor_induk = $guru->nomor_induk . '_deleted_' . $timestamp;
+                $guru->save();
+            }
+            $guru->delete(); // Soft delete data guru
             
+            $userId = $guru->user_id;
             if ($userId) {
-                User::where('id', $userId)->delete();
+                $user = User::find($userId);
+                if ($user) {
+                    // Tambahkan penanda _deleted_ pada username dan email
+                    if (!str_contains($user->username, '_deleted_')) {
+                        $user->username = $user->username . '_deleted_' . $timestamp;
+                    }
+                    if ($user->email && !str_contains($user->email, '_deleted_')) {
+                        $user->email = $user->email . '_deleted_' . $timestamp;
+                    }
+                    $user->save();
+                    $user->delete(); // Soft delete akun user
+                }
             }
 
             DB::commit();

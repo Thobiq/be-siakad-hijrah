@@ -18,6 +18,6 @@ class Kelas extends Model
 
     public function waliKelas()
     {
-        return $this->belongsTo(Guru::class, 'guru_id');
+        return $this->belongsTo(Guru::class, 'guru_id')->withTrashed();
     }
 }

@@ -17,4 +17,9 @@ class Penilaian extends Model
     {
         return $this->belongsTo(Kelas::class);
     }
+
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class)->withTrashed();
+    }
 }
